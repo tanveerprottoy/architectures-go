@@ -1,4 +1,4 @@
-package modulelayer
+package modular
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/tanveerprottoy/architectures-go/internal/modulelayer/module/content"
-	"github.com/tanveerprottoy/architectures-go/internal/modulelayer/module/user"
-	modulerouter "github.com/tanveerprottoy/architectures-go/internal/modulelayer/router"
+	"github.com/tanveerprottoy/architectures-go/internal/modular/module/content"
+	"github.com/tanveerprottoy/architectures-go/internal/modular/module/user"
+	modulerouter "github.com/tanveerprottoy/architectures-go/internal/modular/router"
 	"github.com/tanveerprottoy/architectures-go/internal/pkg/config"
 	"github.com/tanveerprottoy/architectures-go/internal/pkg/constant"
 	"github.com/tanveerprottoy/architectures-go/internal/pkg/data"

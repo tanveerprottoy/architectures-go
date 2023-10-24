@@ -1,11 +1,10 @@
-package content
+package user
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/tanveerprottoy/architectures-go/internal/modulelayer/module/content/dto"
+	"github.com/tanveerprottoy/architectures-go/internal/modular/module/user/dto"
 	"github.com/tanveerprottoy/architectures-go/internal/pkg/adapter"
 	"github.com/tanveerprottoy/architectures-go/internal/pkg/constant"
 	"github.com/tanveerprottoy/architectures-go/internal/pkg/httpext"
@@ -28,17 +27,21 @@ func NewHandler(s *Service, v *validator.Validate) *Handler {
 }
 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
-	var d dto.CreateUpdateContentDTO
-	validationErrs, err := validatorext.ParseValidateRequestBody(r.Body, &d, h.validate)
+	var v dto.CreateUpdateUserDTO
+	// parse the request body
+	err := httpext.ParseRequestBody(r.Body, &v)
+	if err != nil {
+		response.RespondError(http.StatusBadRequest, constant.Errors, []string{constant.InvalidRequestBody}, w)
+		return
+	}
+	// validate the request body
+	validationErrs := validatorext.ValidateStruct(&v, h.validate)
 	if validationErrs != nil {
 		response.RespondError(http.StatusBadRequest, constant.Errors, validationErrs, w)
 		return
 	}
-	if err != nil {
-		response.RespondError(http.StatusBadRequest, constant.Error, err, w)
-		return
-	}
-	e, httpErr := h.service.Create(d, r.Context())
+	ctx := r.Context()
+	e, httpErr := h.service.Create(v, ctx)
 	if httpErr.Err != nil {
 		response.RespondError(httpErr.Code, constant.Error, httpErr.Err.Error(), w)
 		return
@@ -47,9 +50,6 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) ReadMany(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	fmt.Println("ReadMany.context.RBAC: ", ctx.Value(constant.KeyRBAC))
-	fmt.Println("ReadMany.context.AuthUser: ", ctx.Value(constant.KeyAuthUser))
 	limit := 10
 	page := 1
 	var err error
@@ -57,7 +57,7 @@ func (h *Handler) ReadMany(w http.ResponseWriter, r *http.Request) {
 	if limitStr != "" {
 		limit, err = adapter.StringToInt(limitStr)
 		if err != nil {
-			response.RespondError(http.StatusBadRequest, constant.Error, err, w)
+			response.RespondError(http.StatusBadRequest, constant.Error, err.Error(), w)
 			return
 		}
 	}
@@ -65,7 +65,7 @@ func (h *Handler) ReadMany(w http.ResponseWriter, r *http.Request) {
 	if pageStr != "" {
 		page, err = adapter.StringToInt(pageStr)
 		if err != nil {
-			response.RespondError(http.StatusBadRequest, constant.Error, err, w)
+			response.RespondError(http.StatusBadRequest, constant.Error, err.Error(), w)
 			return
 		}
 	}
@@ -89,17 +89,20 @@ func (h *Handler) ReadOne(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	id := httpext.GetURLParam(r, constant.KeyId)
-	var d dto.CreateUpdateContentDTO
-	validationErrs, err := validatorext.ParseValidateRequestBody(r.Body, &d, h.validate)
+	var v dto.CreateUpdateUserDTO
+	// parse the request body
+	err := httpext.ParseRequestBody(r.Body, &v)
+	if err != nil {
+		response.RespondError(http.StatusBadRequest, constant.Errors, []string{constant.InvalidRequestBody}, w)
+		return
+	}
+	// validate the request body
+	validationErrs := validatorext.ValidateStruct(&v, h.validate)
 	if validationErrs != nil {
 		response.RespondError(http.StatusBadRequest, constant.Errors, validationErrs, w)
 		return
 	}
-	if err != nil {
-		response.RespondError(http.StatusBadRequest, constant.Error, err, w)
-		return
-	}
-	e, httpErr := h.service.Update(id, d, r.Context())
+	e, httpErr := h.service.Update(id, &v, nil)
 	if httpErr.Err != nil {
 		response.RespondError(httpErr.Code, constant.Error, httpErr.Err.Error(), w)
 		return

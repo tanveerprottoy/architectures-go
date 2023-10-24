@@ -1,43 +1,45 @@
-package user
+package content
 
 import (
 	"context"
 	"errors"
 	"net/http"
 
-	"github.com/tanveerprottoy/architectures-go/internal/modulelayer/module/user/dto"
-	"github.com/tanveerprottoy/architectures-go/internal/modulelayer/module/user/entity"
+	"github.com/tanveerprottoy/architectures-go/internal/modular/module/content/dto"
+	"github.com/tanveerprottoy/architectures-go/internal/modular/module/content/entity"
 	"github.com/tanveerprottoy/architectures-go/internal/pkg/constant"
 	"github.com/tanveerprottoy/architectures-go/internal/pkg/data"
 	"github.com/tanveerprottoy/architectures-go/internal/pkg/errorext"
 	"github.com/tanveerprottoy/architectures-go/pkg/timeext"
 )
 
+// Service contains the business logic as well as calls to the
+// repository to perform db operations
 type Service struct {
-	repository data.Repository[entity.User]
+	repository data.Repository[entity.Content]
 }
 
 // NewService initializes a new ServiceSQL
-func NewService(r data.Repository[entity.User]) *Service {
+func NewService(r data.Repository[entity.Content]) *Service {
 	return &Service{repository: r}
 }
 
-func (s *Service) readOneInternal(id string, ctx context.Context) (entity.User, errorext.HTTPError) {
-	var e entity.User
+func (s *Service) readOneInternal(id string, ctx context.Context) (entity.Content, errorext.HTTPError) {
+	var e entity.Content
 	row := s.repository.ReadOne(id, ctx)
 	err := row.Err()
 	if err != nil {
 		return e, errorext.HTTPError{Code: http.StatusInternalServerError, Err: err}
 	}
-	httpErr := data.ScanRow[entity.User](row, &e, &e.ID, &e.Email, &e.Name, &e.CreatedAt, &e.UpdatedAt)
+	httpErr := data.ScanRow[entity.Content](row, &e, &e.ID, &e.Name, &e.CreatedAt, &e.UpdatedAt)
 	return e, httpErr
 }
 
 // Create defines the business logic for create post request
-func (s *Service) Create(d dto.CreateUpdateUserDTO, ctx context.Context) (entity.User, errorext.HTTPError) {
+func (s *Service) Create(d dto.CreateUpdateContentDTO, ctx context.Context) (entity.Content, errorext.HTTPError) {
 	// build entity
 	n := timeext.NowUnixMilli()
-	e := entity.User{
+	e := entity.Content{
 		Name:      d.Name,
 		CreatedAt: n,
 		UpdatedAt: n,
@@ -52,7 +54,7 @@ func (s *Service) Create(d dto.CreateUpdateUserDTO, ctx context.Context) (entity
 
 func (s *Service) ReadMany(limit, page int, ctx context.Context) (map[string]any, errorext.HTTPError) {
 	m := make(map[string]any)
-	m["items"] = make([]entity.User, 0)
+	m["items"] = make([]entity.Content, 0)
 	m["limit"] = limit
 	m["page"] = page
 	offset := limit * (page - 1)
@@ -61,7 +63,7 @@ func (s *Service) ReadMany(limit, page int, ctx context.Context) (map[string]any
 		return m, errorext.BuildDBError(err)
 	}
 	defer rows.Close()
-	var e entity.User
+	var e entity.Content
 	d, httpErr := data.ScanRows(rows, &e, &e.ID, &e.Name, &e.CreatedAt, &e.UpdatedAt)
 	if httpErr.Err != nil {
 		return m, errorext.BuildDBError(err)
@@ -70,7 +72,7 @@ func (s *Service) ReadMany(limit, page int, ctx context.Context) (map[string]any
 	return m, errorext.HTTPError{}
 }
 
-func (s *Service) ReadOne(id string, ctx context.Context) (entity.User, errorext.HTTPError) {
+func (s *Service) ReadOne(id string, ctx context.Context) (entity.Content, errorext.HTTPError) {
 	b, httpErr := s.readOneInternal(id, ctx)
 	if httpErr.Err != nil {
 		return b, errorext.BuildDBError(httpErr.Err)
@@ -78,7 +80,7 @@ func (s *Service) ReadOne(id string, ctx context.Context) (entity.User, errorext
 	return b, errorext.HTTPError{}
 }
 
-func (s *Service) Update(id string, d *dto.CreateUpdateUserDTO, ctx context.Context) (entity.User, errorext.HTTPError) {
+func (s *Service) Update(id string, d dto.CreateUpdateContentDTO, ctx context.Context) (entity.Content, errorext.HTTPError) {
 	b, httpErr := s.readOneInternal(id, ctx)
 	if httpErr.Err != nil {
 		return b, errorext.BuildDBError(httpErr.Err)
@@ -95,7 +97,7 @@ func (s *Service) Update(id string, d *dto.CreateUpdateUserDTO, ctx context.Cont
 	return b, errorext.HTTPError{Code: http.StatusBadRequest, Err: errors.New(constant.OperationNotSuccess)}
 }
 
-func (s *Service) Delete(id string, ctx context.Context) (entity.User, errorext.HTTPError) {
+func (s *Service) Delete(id string, ctx context.Context) (entity.Content, errorext.HTTPError) {
 	b, httpErr := s.readOneInternal(id, ctx)
 	if httpErr.Err != nil {
 		return b, errorext.BuildDBError(httpErr.Err)

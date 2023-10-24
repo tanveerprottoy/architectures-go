@@ -9,7 +9,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	pgxstdlib "github.com/jackc/pgx/v5/stdlib"
-	"github.com/tanveerprottoy/architectures-go/internal/modulelayer/module/user/entity"
+	"github.com/tanveerprottoy/architectures-go/internal/modular/module/user/entity"
 	"github.com/tanveerprottoy/architectures-go/internal/pkg/data"
 )
 

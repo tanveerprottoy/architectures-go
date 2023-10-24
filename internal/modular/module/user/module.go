@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/tanveerprottoy/architectures-go/internal/modulelayer/module/user/entity"
+	"github.com/tanveerprottoy/architectures-go/internal/modular/module/user/entity"
 	"github.com/tanveerprottoy/architectures-go/internal/pkg/data"
 )
 
