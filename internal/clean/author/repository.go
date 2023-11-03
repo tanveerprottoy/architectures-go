@@ -1,4 +1,4 @@
-package domain
+package author
 
 import "context"
 
@@ -7,5 +7,6 @@ type Repository interface {
 	Create(ctx context.Context, a Author, args ...any) (string, error)
 	ReadMany(ctx context.Context, args ...any) ([]Author, error)
 	ReadOne(ctx context.Context, id string, args ...any) (Author, error)
+	Update(ctx context.Context, id string, a Author, args ...any) (Author, error)
 	Delete(ctx context.Context, id string, args ...any) (Author, error)
 }

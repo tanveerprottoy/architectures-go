@@ -1,4 +1,4 @@
-package domain
+package author
 
 import (
 	"context"
@@ -11,5 +11,6 @@ type UseCase interface {
 	Create(ctx context.Context, dto dto.CreateUserDTO, args ...any) (Author, error)
 	ReadMany(ctx context.Context, args ...any) ([]Author, error)
 	ReadOne(ctx context.Context, id string, args ...any) (Author, error)
+	Update(ctx context.Context, id string, dto dto.UpdateUserDTO, args ...any) (Author, error)
 	Delete(ctx context.Context, id string, args ...any) (Author, error)
 }
